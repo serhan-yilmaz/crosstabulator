@@ -20,6 +20,13 @@ library(officer)
 library(tidyverse)
 source("table1.R")
 
+CapStr <- function(y) {
+  c <- strsplit(y, " ")[[1]]
+  paste(toupper(substring(c, 1,1)), substring(c, 2),
+        sep="", collapse=" ")
+}
+
+
 melanoma2 <- melanoma
 
 # Factor the basic variables that
@@ -40,6 +47,10 @@ melanoma2$ulcer <-
   factor(melanoma2$ulcer, levels=c(0,1),
          labels=c("Absent", 
                   "Present"))
+
+melanoma2$ulcer[3] <- NA
+
+colnames(melanoma2) <- sapply(colnames(melanoma2), CapStr);
 
 #label(melanoma2$sex)       <- "Sex"
 #label(melanoma2$age)       <- "Age"
@@ -74,7 +85,7 @@ ui <- fluidPage(
     class = "panel panel-heading",
     div(
       class = "panel-heading",
-      h3("Tabulator")
+      h3("CrossTabulator")
     ),
     fluidRow(
       class = "panel-body",
@@ -227,6 +238,7 @@ server <- function(input, output) {
     x$df <- x$df %>% add_column(a, .after = 0)
     names(x$df)[1] <- "Variable"
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&plusmn;", "±")))
+    x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&lt;", "<")))
     
     return (x)
   })
@@ -245,6 +257,7 @@ server <- function(input, output) {
     
     x <- preparetable()
     myft <- flextable(x$df)
+    #myft <- set_header_labels(myft, 
     myft <- width(myft, width = 1)
     myft <- merge_v(myft, j = "Variable")
     myft <- align(myft, align = "center", part = "body")
@@ -267,13 +280,26 @@ server <- function(input, output) {
       library(flextable)
       library(officer)
       x <- preparetable()
+      headings = x$headings
+      headings = append(headings, c("Variable", "Statistic"), after = 0)
+      #print(headings)
+      cols <- colnames(x$df);
+      
+      headerlist = list();
+      for(i in 1:length(headings)){
+        headerlist[cols[i]] <- headings[i]
+      }
+      #print(headerlist)
+      
       myft <- flextable(x$df)
+      myft <- set_header_labels(myft, values=headerlist);
+      myft <- hline(myft, i = 3);
+      print(myft)
       myft <- width(myft, width = 1)
       myft <- merge_v(myft, j = "Variable")
       myft <- align(myft, align = "center", part = "body")
       myft <- align(myft, align = "center", part = "header")
       myft <- fit_to_width(myft, 9)
-      x$myft <- myft
       
       save_as_docx(myft, path = "abcd.docx")
       save_as_docx(myft, path = con)

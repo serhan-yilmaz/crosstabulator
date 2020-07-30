@@ -39,7 +39,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
       else if (x=="P-value")
         paste0(x)
       else
-        paste0(x, " (n=", sum(curdf[, colfactor]==x), ") ")
+        paste0(x, " (n=", sum(!is.na(curdf[, colfactor]) & (curdf[, colfactor]==x)), ") ")
     })
   else
     headings = colnames(output_data)
@@ -90,7 +90,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     
     css.class = css.class)
   
-    out_list <- list("html" = x, "table" = output_data, "rgroup" = rgroup, "n.rgroup" = n.rgroup)
+    out_list <- list("html" = x, "table" = output_data, "rgroup" = rgroup, "n.rgroup" = n.rgroup, "headings" = headings)
   
     return(out_list)
 }
