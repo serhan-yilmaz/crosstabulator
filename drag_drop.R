@@ -220,6 +220,7 @@ server <- function(input, output) {
       need((length(y()) != 0) && (u_values[y()]<10), "")
     )
     x <- table1(melanoma2, y(), x());
+    x$yval <- y()
     
     a <- rep(NA, sum(x$n.rgroup))
     t <- 0
@@ -263,10 +264,8 @@ server <- function(input, output) {
     myft <- align(myft, align = "center", part = "body")
     myft <- align(myft, align = "center", part = "header")
     myft <- fit_to_width(myft, 9)
-    x$myft <- myft
     
     save_as_docx(myft, path = "abcd.docx")
-    
     
     return(x$html)
   }
@@ -286,15 +285,39 @@ server <- function(input, output) {
       cols <- colnames(x$df);
       
       headerlist = list();
+      mainheader = list()
       for(i in 1:length(headings)){
         headerlist[cols[i]] <- headings[i]
+        if(i <= 2 || i == length(headings)){
+          mainheader[cols[i]] <- "";
+        } else {
+          mainheader[cols[i]] <- x$yval
+        }
       }
-      #print(headerlist)
       
+      row_names <- x$df[1]
+
       myft <- flextable(x$df)
       myft <- set_header_labels(myft, values=headerlist);
-      myft <- hline(myft, i = 3);
-      print(myft)
+      
+      
+      blist <- vector()
+      if(nrow(row_names) >= 2){
+        value <- row_names[1,];
+        for(i in 1:(nrow(row_names)-1)){
+          if((value != row_names[i+1,])){
+            blist <- c(blist, i)
+          }
+          value <- row_names[i+1,];
+        }
+        myft <- hline(myft, i = blist, j = 1:length(headings), border = fp_border(color="gray"));
+      }
+      myft <- add_header(myft, values = mainheader, top = TRUE)
+      myft <- fontsize(myft, i = 1, j = 1:length(headings), size=13, part = "header");
+      myft <- bold(myft, i = 1, j = 1:length(headings), part = "header");
+      myft <- vline(myft, j = c(2,length(headings)-1), i = 1:nrow(row_names), border = fp_border(color="black"), part = "body");
+      myft <- vline(myft, j = c(2,length(headings)-1), i = 2, border = fp_border(color="black"), part = "header");
+      myft <- merge_h(myft, i = 1, part = "header")
       myft <- width(myft, width = 1)
       myft <- merge_v(myft, j = "Variable")
       myft <- align(myft, align = "center", part = "body")
