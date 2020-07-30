@@ -136,7 +136,7 @@ ui <- fluidPage(
         width = 6,
         #tableOutput("mtcars_kable")
         htmlOutput("tableout"),
-        uiOutput("download_ui"),
+        uiOutput("download_ui")
         #downloadButton("downloadData", label = "Download"),
       )
     )
@@ -244,6 +244,61 @@ server <- function(input, output) {
     return (x)
   })
   
+  prepareFlexTable <- reactive({
+    validate(
+      need(preparetable(), "")
+    )
+    library(flextable)
+    library(officer)
+    x <- preparetable()
+    headings = x$headings
+    headings = append(headings, c("Variable", "Statistic"), after = 0)
+    #print(headings)
+    cols <- colnames(x$df);
+    
+    headerlist = list();
+    mainheader = list()
+    for(i in 1:length(headings)){
+      headerlist[cols[i]] <- headings[i]
+      if(i <= 2 || i == length(headings)){
+        mainheader[cols[i]] <- "";
+      } else {
+        mainheader[cols[i]] <- x$yval
+      }
+    }
+    
+    row_names <- x$df[1]
+    
+    myft <- flextable(x$df)
+    myft <- set_header_labels(myft, values=headerlist);
+    
+    blist <- vector()
+    if(nrow(row_names) >= 2){
+      value <- row_names[1,];
+      for(i in 1:(nrow(row_names)-1)){
+        if((value != row_names[i+1,])){
+          blist <- c(blist, i)
+        }
+        value <- row_names[i+1,];
+      }
+      myft <- hline(myft, i = blist, j = 1:length(headings), border = fp_border(color="gray"));
+    }
+    myft <- add_header(myft, values = mainheader, top = TRUE)
+    myft <- fontsize(myft, i = 1, j = 1:length(headings), size=13, part = "header");
+    myft <- bold(myft, i = 1, j = 1:length(headings), part = "header");
+    myft <- hline(myft, i = 1, j = 1:length(headings), part = "header", border = fp_border(color = "black", width=2) )
+    #myft <- hline_top(myft, j = 1:length(headings), part = "header", border = fp_border(color = "red") )
+    myft <- merge_h(myft, i = 1, part = "header")
+    myft <- merge_v(myft, j = "Variable")
+    myft <- vline(myft, j = c(2,length(headings)-1), i = 1:nrow(row_names), border = fp_border(color="black"), part = "body");
+    myft <- vline(myft, j = c(2,length(headings)-1), i = 2, border = fp_border(color="black"), part = "header");
+    myft <- width(myft, width = 1)
+    myft <- align(myft, align = "center", part = "body")
+    myft <- align(myft, align = "center", part = "header")
+    myft <- fit_to_width(myft, 9)
+    return(myft)
+    })
+  
   output$tableout <- function() {
     validate(
       need(x(), "Drag a variable to x"),
@@ -278,61 +333,58 @@ server <- function(input, output) {
       print(con)
       library(flextable)
       library(officer)
+      
+      #save_as_docx(myft, path = "abcdy.docx")
+      save_as_docx(prepareFlexTable(), path = con)
+    }
+  )
+  
+  output$downloadData_pptx <- downloadHandler(
+    filename = function() {
+      paste('table-', Sys.Date(), '.pptx', sep='')
+    },
+    content = function(con) {
+      print(con)
+      library(flextable)
+      library(officer)
+      
       x <- preparetable()
       headings = x$headings
-      headings = append(headings, c("Variable", "Statistic"), after = 0)
-      #print(headings)
-      cols <- colnames(x$df);
+      myft <- prepareFlexTable()
+      myft <- fix_border_issues(myft, part = "all")
+      save_as_pptx(myft, path = con)
+    }
+  )
+  
+  output$downloadData_pdf <- downloadHandler(
+    filename = function() {
+      paste('table-', Sys.Date(), '.pptx', sep='')
+    },
+    content = function(con) {
+      print(con)
+      library(flextable)
+      library(officer)
       
-      headerlist = list();
-      mainheader = list()
-      for(i in 1:length(headings)){
-        headerlist[cols[i]] <- headings[i]
-        if(i <= 2 || i == length(headings)){
-          mainheader[cols[i]] <- "";
-        } else {
-          mainheader[cols[i]] <- x$yval
-        }
-      }
-      
-      row_names <- x$df[1]
-
-      myft <- flextable(x$df)
-      myft <- set_header_labels(myft, values=headerlist);
-      
-      
-      blist <- vector()
-      if(nrow(row_names) >= 2){
-        value <- row_names[1,];
-        for(i in 1:(nrow(row_names)-1)){
-          if((value != row_names[i+1,])){
-            blist <- c(blist, i)
-          }
-          value <- row_names[i+1,];
-        }
-        myft <- hline(myft, i = blist, j = 1:length(headings), border = fp_border(color="gray"));
-      }
-      myft <- add_header(myft, values = mainheader, top = TRUE)
-      myft <- fontsize(myft, i = 1, j = 1:length(headings), size=13, part = "header");
-      myft <- bold(myft, i = 1, j = 1:length(headings), part = "header");
-      myft <- vline(myft, j = c(2,length(headings)-1), i = 1:nrow(row_names), border = fp_border(color="black"), part = "body");
-      myft <- vline(myft, j = c(2,length(headings)-1), i = 2, border = fp_border(color="black"), part = "header");
-      myft <- merge_h(myft, i = 1, part = "header")
-      myft <- width(myft, width = 1)
-      myft <- merge_v(myft, j = "Variable")
-      myft <- align(myft, align = "center", part = "body")
-      myft <- align(myft, align = "center", part = "header")
-      myft <- fit_to_width(myft, 9)
-      
-      save_as_docx(myft, path = "abcd.docx")
-      save_as_docx(myft, path = con)
+      x <- preparetable()
+      headings = x$headings
+      myft <- prepareFlexTable()
+      myft <- fix_border_issues(myft, part = "all")
+      save_as_pptx(myft, path = con)
     }
   )
   
   output$download_ui <- renderUI({
-    req(preparetable())
-    downloadButton("downloadData", label = "Export to Word")
+    req(prepareFlexTable())
+    #style = "padding-right: 0px"
+    splitLayout(
+      downloadButton("downloadData", label = "Export to Word"),
+      fillRow(),
+      downloadButton("downloadData_pptx", label = "Export to Powerpoint")
+      #downloadButton("downloadData_pdf", label = "Export to PDF")
+    )
   })
+  
+  
   
 }
 shinyApp(ui, server)
