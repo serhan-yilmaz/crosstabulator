@@ -50,8 +50,9 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
   if (add_total_col) n.cgroup=c(1)
   
   for (i in 1:nrow(colOptions)) {
-    if (colOptions[i,3] == cgroup[length(cgroup)]) # if curgroup same as the last one 
+    if (colOptions[i,3] == cgroup[length(cgroup)]){ # if curgroup same as the last one
       n.cgroup[length(n.cgroup)] = n.cgroup[length(n.cgroup)]+1
+    }
     else {
       n.cgroup = c(n.cgroup, 1)
       cgroup = c(cgroup, colOptions[i,3])
