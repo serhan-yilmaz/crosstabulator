@@ -40,12 +40,17 @@ colnames_to_tags <- function(df){
   r <- lapply(
     colnames(df),
     function(co) {
+      if(length(unique(df[, co])) < 10){
+        sty = "color:red"; 
+      }else{
+        sty = "color:black"; 
+      }
       tag(
         "p",
         list(
           class = class(df[, co]),
           tags$span(class = "glyphicon glyphicon-move"),
-          tags$strong(co)
+          tags$strong(co, style=sty)
         )
       )
     }
@@ -64,7 +69,8 @@ server <- function(input, output) {
   reactive_dataset <- reactive({
     switch (myvalue(),
             "melanoma2" = melanoma2,
-            "mtcars" = mtcars
+            "mtcars" = mtcars,
+            "upload" = upload_dataset()
     )
   })
   
@@ -77,15 +83,24 @@ server <- function(input, output) {
     c_names <- colnames(P$dataset);
     P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
     
+    cnames <- colnames(P$dataset)
+    valids <- rep(TRUE, ncol(P$dataset))
     for (i in 1:ncol(P$dataset)) {
       c <- c_names[i]
       q <- P$dataset[[c]]
-      if((u_values[i] < 10) && !is.factor(q)){
+      if((P$u_values[i] < 10) && !is.factor(q)){
         cat("Factorized variable: ", c, "\n")
         P$dataset[[c]] <- factor(P$dataset[[c]])
         #print(P$dataset[c])
       }
+      if(P$u_values[i] >= 10 && is.character(q)){
+        valids[i] <- FALSE
+      }
     }
+    print(valids)
+    
+    P$dataset <- P$datase[valids]
+    P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
     
     return (P)
   })
@@ -150,7 +165,7 @@ server <- function(input, output) {
     P <- preprocessed_dataset()
     validate(need(P, ""))
     validate(
-      need((length(y()) != 0) && (P$u_values[y()]<10), "The variable in y must be categorical.")
+      need((length(y()) != 0) && (P$u_values[y()]<10), "The variable in y must be categorical (shown red).")
     )
     validate(
       need(preparetable(), "Table is not ready yet.")
@@ -160,9 +175,12 @@ server <- function(input, output) {
   }
   
   observeEvent(input$buttonA, {
-    myvalue("mtcars")
+    switch (myvalue(),
+            "melanoma2" = myvalue("mtcars"),
+            "mtcars" = myvalue("melanoma2"),
+            "upload" = myvalue("melanoma2"), 
+    )
   })
-  
   
   prepareFlexTable <- reactive({
     validate(
@@ -343,5 +361,21 @@ server <- function(input, output) {
     )
   })
   
+  upload_dataset <- reactive({
+      inFile <- input$file1
+      if (is.null(inFile))
+        return(NULL)
+      myvalue("upload")
+      x <- read.csv(inFile$datapath, header = input$header)
+      print(class(x))
+      return(x)
+    })
+  
+  output$contents <- renderTable({
+    upload_dataset()
+  })
   
 }
+
+# wellPanel
+
