@@ -281,6 +281,7 @@ server <- function(input, output) {
       tags$div(class = "panel-heading", "Variables"),
       tags$div(
         class = "panel-body",
+        style = "overflow: auto; max-height: 300px;", 
         id = "sort1",
         colnames_to_tags(preprocessed_dataset()$dataset)
       ),
@@ -361,18 +362,26 @@ server <- function(input, output) {
     )
   })
   
+  observeEvent(input$file1, {
+    inFile <- input$file1
+    if (is.null(inFile))
+      return(NULL)
+    myvalue("upload")
+    print("A dataset is uploaded.")
+    })
+  
   upload_dataset <- reactive({
       inFile <- input$file1
       if (is.null(inFile))
         return(NULL)
-      myvalue("upload")
+      #myvalue("upload")
       x <- read.csv(inFile$datapath, header = input$header)
       print(class(x))
       return(x)
     })
   
   output$contents <- renderTable({
-    upload_dataset()
+    preprocessed_dataset()$dataset
   })
   
 }
