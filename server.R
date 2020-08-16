@@ -33,6 +33,9 @@ CapStr <- function(y) {
         sep="", collapse=" ")
 }
 
+CleanStr <- function(y) {
+  iconv(y, from = 'UTF-8', to = 'ASCII//TRANSLIT')
+}
 
 
 colnames_to_tags <- function(df){
@@ -52,7 +55,7 @@ names_to_tags <- function(df, names){
         tag(
           "p",
           list(
-            class = class(df[, co]),
+            #class = class(df[, co]),
             tags$span(class = "glyphicon glyphicon-move"),
             tags$strong(co, style=sty)
           )
@@ -69,6 +72,8 @@ server <- function(input, output) {
   output$analyse_y <- renderPrint(input[["sort_y"]])
   
   myvalue <- reactiveVal("melanoma")
+  ready <- reactiveVal(FALSE)
+  
   upload_name <- reactiveVal("")
   
   
@@ -82,9 +87,11 @@ server <- function(input, output) {
   
   preprocessed_dataset <- reactive({
     dataset <- reactive_dataset()
+    ready(FALSE)
     
     P <- list()
     P$dataset <- reactive_dataset()
+    colnames(P$dataset) <- lapply(colnames(P$dataset), CleanStr);
     colnames(P$dataset) <- lapply(colnames(P$dataset), CapStr);
     c_names <- colnames(P$dataset);
     P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
@@ -107,7 +114,7 @@ server <- function(input, output) {
     
     P$dataset <- P$datase[valids]
     P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
-    
+    #ready(TRUE)
     return (P)
   })
   
@@ -119,13 +126,18 @@ server <- function(input, output) {
   
   y <- reactive({
     print("Y updated")
-    input$sort_y %>% trimws()
+    y_vars <- input$sort_y %>% trimws();
+    if(fo_sort_names()$y == y_vars){
+      ready(TRUE)
+    }
+    return (y_vars)
   })
   
   preparetable <- reactive({
     validate(
       need(x(), ""),
-      need(y(), "")
+      need(y(), ""),
+      need(ready(), "")
     )
     P <- preprocessed_dataset()
     validate(need(P, ""))
@@ -166,7 +178,8 @@ server <- function(input, output) {
   output$tableout <- function() {
     validate(
       need(x(), "Drag a variable to x"),
-      need(y(), "Drag a variable to y")
+      need(y(), "Drag a variable to y"),
+      need(ready(), "")
     )
     P <- preprocessed_dataset()
     validate(need(P, ""))
@@ -187,6 +200,12 @@ server <- function(input, output) {
             "upload" = myvalue("melanoma"), 
     )
   })
+  
+  # observeEvent(input$sort_y, {
+  #   if(fo_sort_names()$y == (input$sort_y %>% trimws())){
+  #     ready(TRUE)
+  #   }
+  #   })
   
   prepareFlexTable <- reactive({
     validate(
@@ -295,8 +314,6 @@ server <- function(input, output) {
     )
   })
   
-  
-  
   fo_sort_names <- reactive({
       req(preprocessed_dataset())
       Q <- list()
@@ -304,8 +321,18 @@ server <- function(input, output) {
         Q$x = c("Age", "Sex", "Ulcer");
         Q$y = c("Status");
       } else {
-        Q$x = c();
+        df <- preprocessed_dataset()$dataset
+        cnames <- colnames(df);
         Q$y = c();
+        for(i in 1:length(cnames)){
+          if(length(unique(df[, i])) < 10){
+            Q$y = c(cnames[i]);
+            break;
+          }
+        }
+        cnames = setdiff(cnames, Q$y);
+        Q$x = cnames[1:min(3, length(cnames))]
+        
       }
       return(Q)
     })
@@ -318,6 +345,7 @@ server <- function(input, output) {
     Q$x = names_to_tags(preprocessed_dataset()$dataset, Q$x)
     Q$y = names_to_tags(preprocessed_dataset()$dataset, Q$y)
     Q$other = names_to_tags(preprocessed_dataset()$dataset, others)
+    
     return(Q)
   })
   
@@ -330,6 +358,7 @@ server <- function(input, output) {
         class = "panel-body",
         style = "overflow: auto; max-height: 300px;", #height: 280px; 
         id = "sort1",
+       # colnames_to_tags(preprocessed_dataset()$dataset)
         sort_tags()$other
       ),
       sortable_js(
