@@ -14,10 +14,7 @@ ui <- fluidPage(
         style = "padding-bottom:10px; padding-top:10px; margin:0px;",
         id = "fileInput",
         fileInput("file1", "Choose CSV File",
-                  accept = c(
-                    "text/csv",
-                    "text/comma-separated-values,text/plain",
-                    ".csv"),
+                  accept = c(".csv", ".sav"),
                   width = "600px"
         ),
         tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 0px } .checkbox { margin-top: 0px}"),

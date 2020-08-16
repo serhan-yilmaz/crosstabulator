@@ -366,31 +366,24 @@ server <- function(input, output) {
     inFile <- input$file1
     if (is.null(inFile))
       return(NULL)
-    myvalue("upload")
-    print("A dataset is uploaded.")
+    upload_dataset()
     })
   
   upload_dataset <- reactive({
       inFile <- input$file1
       if (is.null(inFile))
         return(NULL)
-      fileInfo <- input$file1
-      if("text/csv" == fileInfo$type)
-      {
-        x <- read.csv(inFile$datapath, header = input$header)
-      }
-      else if ("application/x-spss-sav" == fileInfo$type)
-      {
-        x <- data.frame(read_sav(inFile$datapath))
-      }
-      else
-      {
-        
-        print(fileInfo)
-      }
-      #myvalue("upload")
-      
-      print(class(x))
+      #fileInfo <- input$file1
+      ext = file_ext(inFile$datapath)
+      switch(ext, 
+             "csv" = x <- read.csv(inFile$datapath, header = input$header),
+             "sav" = x <- data.frame(read_sav(inFile$datapath)),
+             validate(
+               need(FALSE, "Invalid file type.")
+             )
+      )
+      myvalue("upload")
+      print("A dataset is uploaded.")
       return(x)
     })
   
