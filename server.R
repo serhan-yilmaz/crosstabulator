@@ -64,11 +64,13 @@ server <- function(input, output) {
   output$analyse_x <- renderPrint(input[["sort_x"]])
   output$analyse_y <- renderPrint(input[["sort_y"]])
   
-  myvalue <- reactiveVal("melanoma2")
+  myvalue <- reactiveVal("melanoma")
+  upload_name <- reactiveVal("")
+  
   
   reactive_dataset <- reactive({
     switch (myvalue(),
-            "melanoma2" = melanoma2,
+            "melanoma" = melanoma2,
             "mtcars" = mtcars,
             "upload" = upload_dataset()
     )
@@ -176,9 +178,9 @@ server <- function(input, output) {
   
   observeEvent(input$buttonA, {
     switch (myvalue(),
-            "melanoma2" = myvalue("mtcars"),
-            "mtcars" = myvalue("melanoma2"),
-            "upload" = myvalue("melanoma2"), 
+            "melanoma" = myvalue("mtcars"),
+            "mtcars" = myvalue("melanoma"),
+            "upload" = myvalue("melanoma"), 
     )
   })
   
@@ -205,6 +207,8 @@ server <- function(input, output) {
     }
     
     row_names <- x$df[1]
+    print(row_names)
+    print(nrow(row_names))
     
     myft <- flextable(x$df)
     myft <- set_header_labels(myft, values=headerlist);
@@ -218,7 +222,9 @@ server <- function(input, output) {
         }
         value <- row_names[i+1,];
       }
-      myft <- hline(myft, i = blist, j = 1:length(headings), border = fp_border(color="gray"));
+      if(length(blist) != 0){
+        myft <- hline(myft, i = blist, j = 1:length(headings), border = fp_border(color="gray"));
+      }
     }
     myft <- add_header(myft, values = mainheader, top = TRUE)
     myft <- fontsize(myft, i = 1, j = 1:length(headings), size=13, part = "header");
@@ -248,6 +254,8 @@ server <- function(input, output) {
     }
   )
   
+  
+  
   output$downloadData_pptx <- downloadHandler(
     filename = function() {
       paste('table-', Sys.Date(), '.pptx', sep='')
@@ -272,6 +280,14 @@ server <- function(input, output) {
       fillRow(),
       downloadButton("downloadData_pptx", label = "Export to Powerpoint")
     )
+  })
+  
+  output$current_dataset_ui <- renderUI({
+    dname = myvalue();
+    if(dname == "upload"){
+      dname = upload_name()
+    }
+    tags$p(paste("Current Dataset: ", dname))
   })
   
   output$sort1_ui <- renderUI({
@@ -373,7 +389,7 @@ server <- function(input, output) {
       inFile <- input$file1
       if (is.null(inFile))
         return(NULL)
-      #fileInfo <- input$file1
+      fileInfo <- input$file1
       ext = file_ext(inFile$datapath)
       switch(ext, 
              "csv" = x <- read.csv(inFile$datapath, header = input$header),
@@ -383,7 +399,8 @@ server <- function(input, output) {
              )
       )
       myvalue("upload")
-      print("A dataset is uploaded.")
+      upload_name(fileInfo$name)
+      print(cat("Dataset is uploaded: ", fileInfo$name))
       return(x)
     })
   

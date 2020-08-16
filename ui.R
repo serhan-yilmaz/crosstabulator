@@ -5,26 +5,32 @@ ui <- fluidPage(
       class = "panel-heading",
       h3("CrossTabulator")
     ),
-    tags$div(
-      class = "panel panel-default",
-      style = "margin:0px;",
-      tags$div(class = "panel-heading", "File Input"),
-      tags$div(
-        class = "panel-body",
-        style = "padding-bottom:10px; padding-top:10px; margin:0px;",
-        id = "fileInput",
-        fileInput("file1", "Choose CSV File",
-                  accept = c(".csv", ".sav"),
-                  width = "600px"
-        ),
-        tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 0px } .checkbox { margin-top: 0px}"),
-        tags$hr(style = "margin:0px 0px 10px 0px;"),
-        checkboxInput("header", "Header", TRUE),
-        tags$style(".checkbox {margin-bottom: 0px;}"),
-      )
-    ),
     fluidRow(
       class = "panel-body",
+      column(
+        width = 2,
+        tags$div(
+          class = "panel panel-default",
+          style = "margin:0px;",
+          tags$div(class = "panel-heading", "Input Data"),
+          tags$div(
+            class = "panel-body",
+            style = "padding-bottom:10px; padding-top:10px; margin:0px;",
+            id = "fileInput",
+            actionButton("buttonA", "Sample Dataset"),
+            tags$hr(style = "margin:8px 0px 8px 0px;"),
+            fileInput("file1", "Upload File:",
+                      accept = c(".csv", ".sav")
+            ),
+            tags$p("Accepted Types: .csv or .sav"),
+            tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 3px } .checkbox { margin-top: 0px}"),
+            checkboxInput("header", "Header", TRUE),
+            tags$style(".checkbox {margin-bottom: 0px;}"),
+            tags$hr(style = "margin: 5px 0px 0px 0px;"),
+            uiOutput("current_dataset_ui")
+          )
+        )
+      ), 
       column(
         width = 4, 
         fluidRow(
@@ -45,10 +51,8 @@ ui <- fluidPage(
       ,
       column(
         width = 6,
-        #tableOutput("mtcars_kable")
         htmlOutput("tableout"),
-        uiOutput("download_ui"),
-        actionButton("buttonA", "Switch Dataset")
+        uiOutput("download_ui")
         #downloadButton("downloadData", label = "Download"),
       )
     ),
