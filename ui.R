@@ -73,10 +73,5 @@ ui <- fluidPage(
       ),
     )
     ),
-    # fluidRow(
-    #   mainPanel(
-    #     div(style = 'overflow: auto; max-height:400px;', tableOutput("contents"))
-    #   )
-    # )
   )
 )

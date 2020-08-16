@@ -27,36 +27,40 @@ melanoma2$ulcer[3] <- NA
 #label(melanoma2$ulcer)     <- "Ulceration"
 #label(melanoma2$thickness) <- "Thickness"
 
-#units(melanoma2$age)       <- "years"
-#units(melanoma2$thickness) <- "mm"
-
 CapStr <- function(y) {
   c <- strsplit(y, " ")[[1]]
   paste(toupper(substring(c, 1,1)), substring(c, 2),
         sep="", collapse=" ")
 }
 
+
+
 colnames_to_tags <- function(df){
-  r <- lapply(
-    colnames(df),
-    function(co) {
-      if(length(unique(df[, co])) < 10){
-        sty = "color:red"; 
-      }else{
-        sty = "color:black"; 
-      }
-      tag(
-        "p",
-        list(
-          class = class(df[, co]),
-          tags$span(class = "glyphicon glyphicon-move"),
-          tags$strong(co, style=sty)
-        )
-      )
-    }
-  )
+  r <- names_to_tags(df, colnames(df))
   return (r)
 }
+
+names_to_tags <- function(df, names){
+    r <- lapply(
+      names,
+      function(co) {
+        if(length(unique(df[, co])) < 10){
+          sty = "color:red"; 
+        }else{
+          sty = "color:black"; 
+        }
+        tag(
+          "p",
+          list(
+            class = class(df[, co]),
+            tags$span(class = "glyphicon glyphicon-move"),
+            tags$strong(co, style=sty)
+          )
+        )
+      }
+    )
+    return (r)
+  }
 
 server <- function(input, output) {
   
@@ -291,6 +295,32 @@ server <- function(input, output) {
     )
   })
   
+  
+  
+  fo_sort_names <- reactive({
+      req(preprocessed_dataset())
+      Q <- list()
+      if(myvalue() == "melanoma"){
+        Q$x = c("Age", "Sex", "Ulcer");
+        Q$y = c("Status");
+      } else {
+        Q$x = c();
+        Q$y = c();
+      }
+      return(Q)
+    })
+  
+  sort_tags <- reactive({
+    req(preprocessed_dataset())
+    Q = fo_sort_names()
+    cnames <- colnames(preprocessed_dataset()$dataset);
+    others = setdiff(cnames, c(Q$x, Q$y));
+    Q$x = names_to_tags(preprocessed_dataset()$dataset, Q$x)
+    Q$y = names_to_tags(preprocessed_dataset()$dataset, Q$y)
+    Q$other = names_to_tags(preprocessed_dataset()$dataset, others)
+    return(Q)
+  })
+  
   output$sort1_ui <- renderUI({
     req(preprocessed_dataset())
     tags$div(
@@ -300,7 +330,7 @@ server <- function(input, output) {
         class = "panel-body",
         style = "overflow: auto; max-height: 300px;", #height: 280px; 
         id = "sort1",
-        colnames_to_tags(preprocessed_dataset()$dataset)
+        sort_tags()$other
       ),
       sortable_js(
         "sort1",
@@ -331,7 +361,8 @@ server <- function(input, output) {
       tags$div(
         class = "panel-body",
         style = "overflow: auto; max-height: 170px;", #height: 280px; 
-        id = "sort2"
+        id = "sort2",
+        sort_tags()$x
       ),
       sortable_js(
         "sort2",
@@ -362,7 +393,8 @@ server <- function(input, output) {
       ),
       tags$div(
         class = "panel-body",
-        id = "sort3"
+        id = "sort3",
+        sort_tags()$y
       ),
       sortable_js(
         "sort3",
