@@ -254,8 +254,6 @@ server <- function(input, output) {
     }
   )
   
-  
-  
   output$downloadData_pptx <- downloadHandler(
     filename = function() {
       paste('table-', Sys.Date(), '.pptx', sep='')
@@ -287,7 +285,10 @@ server <- function(input, output) {
     if(dname == "upload"){
       dname = upload_name()
     }
-    tags$p(paste("Current Dataset: ", dname))
+    tags$div(
+      tags$b("Current Dataset:", style = "margin-bottom:0px;"),
+      tags$em(paste("", dname))
+    )
   })
   
   output$sort1_ui <- renderUI({
@@ -297,7 +298,7 @@ server <- function(input, output) {
       tags$div(class = "panel-heading", "Variables"),
       tags$div(
         class = "panel-body",
-        style = "overflow: auto; max-height: 300px;", 
+        style = "overflow: auto; max-height: 300px;", #height: 280px; 
         id = "sort1",
         colnames_to_tags(preprocessed_dataset()$dataset)
       ),
@@ -329,6 +330,7 @@ server <- function(input, output) {
       ),
       tags$div(
         class = "panel-body",
+        style = "overflow: auto; max-height: 170px;", #height: 280px; 
         id = "sort2"
       ),
       sortable_js(

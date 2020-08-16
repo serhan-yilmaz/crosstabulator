@@ -15,18 +15,22 @@ ui <- fluidPage(
           tags$div(class = "panel-heading", "Input Data"),
           tags$div(
             class = "panel-body",
-            style = "padding-bottom:10px; padding-top:10px; margin:0px;",
+            style = "padding-bottom:10px; padding-top:10px; margin:0px;  height: 300px;",
             id = "fileInput",
             actionButton("buttonA", "Sample Dataset"),
             tags$hr(style = "margin:8px 0px 8px 0px;"),
             fileInput("file1", "Upload File:",
                       accept = c(".csv", ".sav")
             ),
-            tags$p("Accepted Types: .csv or .sav"),
+            tags$div(
+              style = "margin-bottom:4px;",
+              HTML('Accepted Types: <br> .csv or .sav'),
+            ),
+            #tags$p("Accepted Types: .csv or .sav"),
             tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 3px } .checkbox { margin-top: 0px}"),
             checkboxInput("header", "Header", TRUE),
             tags$style(".checkbox {margin-bottom: 0px;}"),
-            tags$hr(style = "margin: 5px 0px 0px 0px;"),
+            tags$hr(style = "margin: 5px 0px 4px 0px;"),
             uiOutput("current_dataset_ui")
           )
         )
@@ -47,19 +51,32 @@ ui <- fluidPage(
             uiOutput("sort3_ui")
           )
         )
-      )
-      ,
+      ),
       column(
         width = 6,
-        htmlOutput("tableout"),
-        uiOutput("download_ui")
-        #downloadButton("downloadData", label = "Download"),
-      )
-    ),
-    fluidRow(
-      mainPanel(
-        div(style = 'overflow: auto; max-height:400px;', tableOutput("contents"))
-      )
+        tabsetPanel(
+          tabPanel(
+            "Cross-Tabulation",
+            fluidRow(
+              column(
+                width = 12,
+                htmlOutput("tableout"),
+                uiOutput("download_ui")
+                #downloadButton("downloadData", label = "Download"),
+              )
+            )
+          ),
+          tabPanel(
+            "Data View",
+            div(style = 'overflow: auto; max-height:400px;', tableOutput("contents"))
+          )
+      ),
     )
+    ),
+    # fluidRow(
+    #   mainPanel(
+    #     div(style = 'overflow: auto; max-height:400px;', tableOutput("contents"))
+    #   )
+    # )
   )
 )
