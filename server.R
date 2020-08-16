@@ -374,8 +374,22 @@ server <- function(input, output) {
       inFile <- input$file1
       if (is.null(inFile))
         return(NULL)
+      fileInfo <- input$file1
+      if("text/csv" == fileInfo$type)
+      {
+        x <- read.csv(inFile$datapath, header = input$header)
+      }
+      else if ("application/x-spss-sav" == fileInfo$type)
+      {
+        x <- data.frame(read_sav(inFile$datapath))
+      }
+      else
+      {
+        
+        print(fileInfo)
+      }
       #myvalue("upload")
-      x <- read.csv(inFile$datapath, header = input$header)
+      
       print(class(x))
       return(x)
     })

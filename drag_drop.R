@@ -18,6 +18,7 @@ library(boot)
 library(flextable)
 library(officer)
 library(tidyverse)
+library(haven)
 source("table1.R")
 
 source("ui.R");
