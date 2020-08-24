@@ -1,3 +1,17 @@
+library(sortable)
+library(magrittr)
+library(Gmisc)
+library(Hmisc)
+library(htmlTable)
+#library(survival)
+#library(kableExtra)
+library(boot)
+library(flextable)
+library(officer)
+library(haven)
+library(tools)
+library(tidyverse)
+source("table1.R")
 
 melanoma2 <- melanoma
 
@@ -26,6 +40,10 @@ melanoma2$ulcer[3] <- NA
 #label(melanoma2$age)       <- "Age"
 #label(melanoma2$ulcer)     <- "Ulceration"
 #label(melanoma2$thickness) <- "Thickness"
+
+dm431 <- read.csv("data/dm431.csv", header = T)
+hbp_study <- read.csv("data/hbp_study.csv", header = T)
+hbp330 <- read.csv("data/hbp330.csv", header = T)
 
 CapStr <- function(y) {
   c <- strsplit(y, " ")[[1]]
@@ -67,9 +85,9 @@ names_to_tags <- function(df, names){
 
 server <- function(input, output) {
   
-  output$variables <- renderPrint(input[["sort_vars"]])
-  output$analyse_x <- renderPrint(input[["sort_x"]])
-  output$analyse_y <- renderPrint(input[["sort_y"]])
+  #output$variables <- renderPrint(input[["sort_vars"]])
+  #output$analyse_x <- renderPrint(input[["sort_x"]])
+  #output$analyse_y <- renderPrint(input[["sort_y"]])
   
   myvalue <- reactiveVal("melanoma")
   ready <- reactiveVal(FALSE)
@@ -81,6 +99,9 @@ server <- function(input, output) {
     switch (myvalue(),
             "melanoma" = melanoma2,
             "mtcars" = mtcars,
+            "hbp_study" = hbp_study,
+            "hbp330" = hbp330,
+            "dm431" = dm431, 
             "upload" = upload_dataset()
     )
   })
@@ -109,6 +130,13 @@ server <- function(input, output) {
       if(P$u_values[i] >= 10 && is.character(q)){
         valids[i] <- FALSE
       }
+      
+      if(P$u_values[i] == nrow(P$dataset)){
+        if(isTRUE(all(q == as.integer(q)))){
+          valids[i] <- FALSE
+        }
+      }
+      
     }
     print(valids)
     
@@ -119,15 +147,20 @@ server <- function(input, output) {
   })
   
   x <- reactive({
+    req(preprocessed_dataset())
     print("X updated")
     x <- input$sort_x
     if (is.character(x)) x %>% trimws()
   })
   
   y <- reactive({
+    req(preprocessed_dataset())
     print("Y updated")
     y_vars <- input$sort_y %>% trimws();
-    if(fo_sort_names()$y == y_vars){
+    
+    a <- fo_sort_y()
+    if((length(fo_sort_y()) == length(y_vars)) 
+       && all(fo_sort_y() == y_vars)){
       ready(TRUE)
     }
     return (y_vars)
@@ -146,9 +179,6 @@ server <- function(input, output) {
     )
     #print("Prepare table is updated.")
     #x <- list(a='b');
-    
-    print(class(P$dataset))
-    print(y())
     
     x <- table1(P$dataset, y(), x());
     x$yval <- y()
@@ -195,8 +225,9 @@ server <- function(input, output) {
   
   observeEvent(input$buttonA, {
     switch (myvalue(),
-            "melanoma" = myvalue("mtcars"),
-            "mtcars" = myvalue("melanoma"),
+            "melanoma" = myvalue("hbp330"),
+            "hbp330" = myvalue("dm431"),
+            "dm431" = myvalue("melanoma"),
             "upload" = myvalue("melanoma"), 
     )
   })
@@ -230,8 +261,6 @@ server <- function(input, output) {
     }
     
     row_names <- x$df[1]
-    print(row_names)
-    print(nrow(row_names))
     
     myft <- flextable(x$df)
     myft <- set_header_labels(myft, values=headerlist);
@@ -313,6 +342,11 @@ server <- function(input, output) {
       tags$em(paste("", dname))
     )
   })
+  
+  fo_sort_y <- reactive({
+    req(preprocessed_dataset())
+    return(fo_sort_names()$y)
+    })
   
   fo_sort_names <- reactive({
       req(preprocessed_dataset())
@@ -455,7 +489,7 @@ server <- function(input, output) {
       fileInfo <- input$file1
       ext = file_ext(inFile$datapath)
       switch(ext, 
-             "csv" = x <- read.csv(inFile$datapath, header = input$header),
+             "csv" = x <- read.csv(inFile$datapath, header = T), #input$header),
              "sav" = x <- data.frame(read_sav(inFile$datapath)),
              validate(
                need(FALSE, "Invalid file type.")

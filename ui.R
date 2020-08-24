@@ -28,7 +28,7 @@ ui <- fluidPage(
             ),
             #tags$p("Accepted Types: .csv or .sav"),
             tags$style(".shiny-input-container {margin-bottom: 0px} #file1_progress { margin-bottom: 3px } .checkbox { margin-top: 0px}"),
-            checkboxInput("header", "Header", TRUE),
+            #checkboxInput("header", "Header", TRUE),
             tags$style(".checkbox {margin-bottom: 0px;}"),
             tags$hr(style = "margin: 5px 0px 4px 0px;"),
             uiOutput("current_dataset_ui")

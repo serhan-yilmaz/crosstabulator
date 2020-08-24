@@ -89,7 +89,11 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     tfoot=tfoot, 
     ctable=TRUE, 
     
-    css.class = css.class)
+    css.class = css.class
+    , css.table = "width: 100%;"
+    )
+    
+  #addHtmlTableStyle(css.table = "display: block")
   
     out_list <- list("html" = x, "table" = output_data, "rgroup" = rgroup, "n.rgroup" = n.rgroup, "headings" = headings)
   
