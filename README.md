@@ -1,4 +1,4 @@
-<img src="www/crosstabulator_logo_github.png" width="500">
+<img src="www/crosstabulator_logo_github.png" width="900">
 
 
 ## Introduction 
