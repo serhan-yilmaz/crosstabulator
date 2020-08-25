@@ -1,4 +1,4 @@
-<img align="center" src="www/crosstabulator_logo.png" width="400">
+<img src="www/crosstabulator_logo.png" width="400">
 
 
 ## Introduction 
