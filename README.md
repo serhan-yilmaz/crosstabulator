@@ -1,4 +1,5 @@
-<img src="www/crosstabulator_logo.png" width="400">
+<img src="www/crosstabulator_logo.png" width="500">
+A web application to create demographics tables for use in scientific journals
 
 
 ## Introduction 
