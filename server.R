@@ -387,10 +387,11 @@ server <- function(input, output) {
     req(preprocessed_dataset())
     tags$div(
       class = "panel panel-default",
+      style = "margin-bottom: 12px", 
       tags$div(class = "panel-heading", "Variables"),
       tags$div(
         class = "panel-body",
-        style = "overflow: auto; max-height: 300px;", #height: 280px; 
+        style = "overflow: auto; max-height: 279px; margin-bottom: 1px", #height: 275px; 
         id = "sort1",
        # colnames_to_tags(preprocessed_dataset()$dataset)
         sort_tags()$other
@@ -416,6 +417,7 @@ server <- function(input, output) {
     req(preprocessed_dataset())
     tags$div(
       class = "panel panel-default",
+      style = "margin-bottom: 18px", 
       tags$div(
         class = "panel-heading",
         tags$span(class = "glyphicon glyphicon-stats"),
@@ -423,7 +425,7 @@ server <- function(input, output) {
       ),
       tags$div(
         class = "panel-body",
-        style = "overflow: auto; max-height: 170px;", #height: 280px; 
+        style = "overflow: auto; max-height: 129px;", #height: 280px; #max-height: 150px;
         id = "sort2",
         sort_tags()$x
       ),
@@ -449,6 +451,7 @@ server <- function(input, output) {
     req(preprocessed_dataset())
     tags$div(
       class = "panel panel-default",
+      style = "margin-bottom: 12px", 
       tags$div(
         class = "panel-heading",
         tags$span(class = "glyphicon glyphicon-stats"),
@@ -456,6 +459,7 @@ server <- function(input, output) {
       ),
       tags$div(
         class = "panel-body",
+        style = "max-height: 50px;", #height: 280px; 
         id = "sort3",
         sort_tags()$y
       ),
