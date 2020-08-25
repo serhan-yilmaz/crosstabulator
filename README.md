@@ -1,4 +1,4 @@
-<img src="examples/setNodeLabels-2.png" width="400" align="center">
+<img align="center" src="www/crosstabulator_logo.png" width="400">
 
 
 ## Introduction 
