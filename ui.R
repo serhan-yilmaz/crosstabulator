@@ -1,6 +1,9 @@
 ui <- fluidPage(
   title = "CrossTabulator", 
-  tags$head(tags$link(rel="shortcut icon", href="favicon.png")),
+  tags$head(
+    tags$link(rel="shortcut icon", href="favicon.png"),
+    tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
+  ),
   #tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
   fluidRow(
     class = "panel panel-heading",

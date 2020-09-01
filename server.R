@@ -352,8 +352,8 @@ server <- function(input, output) {
       req(preprocessed_dataset())
       Q <- list()
       if(myvalue() == "melanoma"){
-        Q$x = c("Age", "Sex", "Ulcer");
-        Q$y = c("Status");
+        Q$x = c("Age", "Status", "Ulcer");
+        Q$y = c("Sex");
       } else {
         df <- preprocessed_dataset()$dataset
         cnames <- colnames(df);
@@ -455,7 +455,7 @@ server <- function(input, output) {
       tags$div(
         class = "panel-heading",
         tags$span(class = "glyphicon glyphicon-stats"),
-        "Y: The outcome variable (drag here)"
+        "Y: Stratification variable (drag here)"
       ),
       tags$div(
         class = "panel-body",
