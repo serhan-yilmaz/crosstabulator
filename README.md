@@ -9,5 +9,5 @@ CrossTabulator is an R shiny based web application to generate summary tables fr
 To run CrossTabulator locally on your R installation, simply run:
 ```
 library(shiny)
-runGitHub("crosstabulator","serhan-yilmaz")
+runGitHub("crosstabulator", "serhan-yilmaz")
 ```
