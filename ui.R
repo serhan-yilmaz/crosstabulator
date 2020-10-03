@@ -3,6 +3,7 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
+    includeHTML(("www/google-analytics.html")),
   ),
   #tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
   fluidRow(
