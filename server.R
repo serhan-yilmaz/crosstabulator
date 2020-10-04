@@ -180,17 +180,17 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
-    message(cat("Prepare table: Status 0"))
+    message("Prepare table: Status 0")
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "")
     )
-    message(cat("Prepare table is starting..."))
+    message("Prepare table is starting...")
     #print("Prepare table is updated.")
     #x <- list(a='b');
     
     x <- table1(P$dataset, y(), x());
-    message(cat("Prepare table: Status A"))
+    message("Prepare table: Status A")
     
     x$yval <- y()
     
@@ -204,7 +204,7 @@ server <- function(input, output) {
       }
     }
     
-    message(cat("Prepare table: Status B"))
+    message("Prepare table: Status B")
     
     row_names <- rownames(x$table);
     x$df <- as.data.frame(x$table);
@@ -215,7 +215,7 @@ server <- function(input, output) {
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&plusmn;", "±")))
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&lt;", "<")))
     
-    message(cat("Prepare table has ended."))
+    message("Prepare table has ended.")
     
     return (x)
   })
@@ -227,18 +227,18 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
-    message(cat("Tableout: Status 0."))
+    message("Tableout: Status 0.")
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "The variable in y must be categorical (shown red).")
     )
-    message(cat("Tableout: Status 1."))
+    message("Tableout: Status 1.")
     validate(
       need(preparetable(), "Table is not ready yet.")
     )
-    message(cat("Tableout: Status 2."))
+    message("Tableout: Status 2.")
     x <- preparetable()
-    message(cat("Tableout has ended."))
+    message("Tableout has ended.")
     return(x$html)
   }
   

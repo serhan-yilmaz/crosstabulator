@@ -12,7 +12,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     colOptions = cbind(x, rep("c", length(x)), rep(label(curdf[,colfactor]), length(x)))
   }
   
-  message(cat("Table1: Status 0"))
+  message("Table1: Status 0")
   # Get the basic stats and store in a list
   table_data <- list()
   for (i in 1:nrow(selectedFields)) {
@@ -21,7 +21,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
         add_total_col=add_total_col, statistics=statistics, NEJMstyle = NEJMstyle, digits=as.integer(selectedFields[i,2]))
   }
   
-  message(cat("Table1: Status A"))
+  message("Table1: Status A")
   
   # Now merge everything into a matrix
   # and create the rgroup & n.rgroup variabels
@@ -34,7 +34,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     n.rgroup <- c(n.rgroup, nrow(table_data[[varlabel]]))
   }
   
-  message(cat("Table1: Status B"))
+  message("Table1: Status B")
   
   # build N= col headings
   if (colN) 
@@ -49,7 +49,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
   else
     headings = colnames(output_data)
   
-  message(cat("Table1: Status C"))
+  message("Table1: Status C")
   
   # build cgroup from colOptions
   cgroup=c("")
@@ -70,7 +70,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     cgroup = c(cgroup, "")
   }
   
-  message(cat("Table1: Status D"))
+  message("Table1: Status D")
   
   # new version of GMisc uses missing instead of null for empty options
   #if (all(cgroup==c(""))) cgroup=NULL
@@ -81,7 +81,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     align = paste0(align, colOptions[i,2])
   if (statistics) align=paste0(align, "c")
   
-  message(cat("Table1: Status E"))
+  message("Table1: Status E")
   
   x = htmlTable(output_data, align=align,
     
@@ -104,13 +104,13 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     , css.table = "width: 100%;"
     )
   
-  message(cat("Table1: Status F"))
+  message("Table1: Status F")
     
   #addHtmlTableStyle(css.table = "display: block")
   
   out_list <- list("html" = x, "table" = output_data, "rgroup" = rgroup, "n.rgroup" = n.rgroup, "headings" = headings)
   
-  message(cat("Table1: Status X."))
+  message("Table1: Status X.")
     
   return(out_list)
 }
