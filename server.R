@@ -129,13 +129,16 @@ server <- function(input, output) {
         P$dataset[[c]] <- factor(P$dataset[[c]])
         #print(P$dataset[c])
       }
-      if(P$u_values[i] >= 10 && is.character(q)){
+      if(P$u_values[i] >= 10 && (is.character(q) || is.factor(q))){
+        cat("Filtered variable: ", c, "\n", file = stderr())
         valids[i] <- FALSE
+        next;
       }
       
       if(P$u_values[i] == nrow(P$dataset)){
         if(isTRUE(all(q == as.integer(q)))){
           valids[i] <- FALSE
+          cat("Filtered variable: ", c, "\n", file = stderr())
         }
       }
       
