@@ -534,7 +534,10 @@ server <- function(input, output) {
     })
   
   output$contents <- renderTable({
-    preprocessed_dataset()$dataset
+    x <- preprocessed_dataset()$dataset;
+    x <- slice_head(x, n=1000);
+    
+    return(x)
   })
   
 }
