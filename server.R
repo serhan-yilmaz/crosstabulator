@@ -107,8 +107,8 @@ server <- function(input, output) {
   
   preprocessed_dataset <- reactive({
     dataset <- reactive_dataset()
-    cat("Dataset changing to: ", myvalue(), "\n", file = stderr())
-    ready(TRUE)
+    #cat("Dataset changing to: ", myvalue(), "\n", file = stderr())
+    ready(FALSE)
     
     P <- list()
     P$dataset <- reactive_dataset()
@@ -121,7 +121,7 @@ server <- function(input, output) {
     valids <- rep(TRUE, ncol(P$dataset))
     for (i in 1:ncol(P$dataset)) {
       c <- c_names[i]
-      cat("Variable: ", c, "\n", file = stderr())
+      #cat("Variable: ", c, "\n", file = stderr())
       
       q <- P$dataset[[c]]
       if((P$u_values[i] < 10) && !is.factor(q)){
@@ -426,8 +426,9 @@ server <- function(input, output) {
             put = TRUE
           ),
           swap = FALSE,
+          animation = 200, 
           swapClass = "sortable-swap-highlight",
-          sort = FALSE,
+          sort = TRUE,
           onSort = sortable_js_capture_input("sort_vars"),
           onLoad = sortable_js_capture_input("sort_vars")
         )
@@ -456,11 +457,13 @@ server <- function(input, output) {
         options = sortable_options(
           group = list(
             group = "sortGroup1",
-            put=TRUE,
+            put = TRUE,
             #put = htmlwidgets::JS("function (to) { return to.el.children.length < 1; }"),
             pull = TRUE
           ),
           swap = FALSE,
+          sort = TRUE,
+          animation = 200, 
           swapClass = "sortable-swap-highlight",
           onSort = sortable_js_capture_input("sort_x"),
           onLoad = sortable_js_capture_input("sort_x")
@@ -490,10 +493,13 @@ server <- function(input, output) {
         options = sortable_options(
           group = list(
             group = "sortGroup1",
+            #put = TRUE,
             put = htmlwidgets::JS("function (to) { return to.el.children.length < 1; }"),
             pull = TRUE
           ),
-          swap = TRUE,
+          swap = FALSE,
+          sort = FALSE,
+          #animation = 30, 
           swapClass = "sortable-swap-highlight",
           onSort = sortable_js_capture_input("sort_y"),
           onLoad = sortable_js_capture_input("sort_y")
