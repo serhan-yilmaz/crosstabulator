@@ -120,8 +120,9 @@ server <- function(input, output) {
     cnames <- colnames(P$dataset)
     valids <- rep(TRUE, ncol(P$dataset))
     for (i in 1:ncol(P$dataset)) {
-      cat("Variable: ", c, "\n", file = stderr())
       c <- c_names[i]
+      cat("Variable: ", c, "\n", file = stderr())
+      
       q <- P$dataset[[c]]
       if((P$u_values[i] < 10) && !is.factor(q)){
         cat("Factorized variable: ", c, "\n", file = stderr())
@@ -237,7 +238,7 @@ server <- function(input, output) {
     )
     message(cat("Tableout: Status 2."))
     x <- preparetable()
-    message(cat("Tableout: Status 3."))
+    message(cat("Tableout has ended."))
     return(x$html)
   }
   
