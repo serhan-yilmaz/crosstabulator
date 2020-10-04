@@ -94,10 +94,10 @@ ui <- fluidPage(
             "For questions or feature suggestions, please contact:",
             tags$br(),
             tags$a("Serhan Yilmaz", href="http://www.serhanyilmaz.com"),
-            "<serhan.yilmaz[at]case.edu>",
+            "<serhan.yilmaz@case.edu>",
             tags$br(),
             tags$a("Ahmet Mert Hacialiefendioglu", href="https://www.linkedin.com/in/hacialiefendioglu/"),
-            "<ahmetmert53[at]gmail.com>",
+            "<ahmetmert53@gmail.com>",
           )
         ),
         tags$p(

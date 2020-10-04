@@ -87,14 +87,12 @@ names_to_tags <- function(df, names){
 server <- function(input, output) {
   
   #output$variables <- renderPrint(input[["sort_vars"]])
-  #output$analyse_x <- renderPrint(input[["sort_x"]])
   #output$analyse_y <- renderPrint(input[["sort_y"]])
   
   myvalue <- reactiveVal("melanoma")
   ready <- reactiveVal(FALSE)
   
   upload_name <- reactiveVal("")
-  
   
   reactive_dataset <- reactive({
     switch (myvalue(),
@@ -109,7 +107,8 @@ server <- function(input, output) {
   
   preprocessed_dataset <- reactive({
     dataset <- reactive_dataset()
-    ready(FALSE)
+    cat("Dataset changed to: ", myvalue(), "\n", file = stderr())
+    ready(TRUE)
     
     P <- list()
     P$dataset <- reactive_dataset()
@@ -124,7 +123,7 @@ server <- function(input, output) {
       c <- c_names[i]
       q <- P$dataset[[c]]
       if((P$u_values[i] < 10) && !is.factor(q)){
-        cat("Factorized variable: ", c, "\n")
+        cat("Factorized variable: ", c, "\n", file = stderr())
         P$dataset[[c]] <- factor(P$dataset[[c]])
         #print(P$dataset[c])
       }
@@ -139,7 +138,7 @@ server <- function(input, output) {
       }
       
     }
-    print(valids)
+    #print(valids)
     
     P$dataset <- P$datase[valids]
     P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
@@ -149,14 +148,14 @@ server <- function(input, output) {
   
   x <- reactive({
     req(preprocessed_dataset())
-    print("X updated")
+    message("X updated")
     x <- input$sort_x
     if (is.character(x)) x %>% trimws()
   })
   
   y <- reactive({
     req(preprocessed_dataset())
-    print("Y updated")
+    message("Y updated")
     y_vars <- input$sort_y %>% trimws();
     
     a <- fo_sort_y()
@@ -300,7 +299,7 @@ server <- function(input, output) {
       paste('table-', Sys.Date(), '.docx', sep='')
     },
     content = function(con) {
-      print(con)
+      message(con)
       library(flextable)
       library(officer)
       save_as_docx(prepareFlexTable(), path = con)
@@ -312,7 +311,7 @@ server <- function(input, output) {
       paste('table-', Sys.Date(), '.pptx', sep='')
     },
     content = function(con) {
-      print(con)
+      message(con)
       library(flextable)
       library(officer)
       
@@ -404,7 +403,7 @@ server <- function(input, output) {
             name = "sortGroup1",
             put = TRUE
           ),
-          swap = TRUE,
+          swap = FALSE,
           swapClass = "sortable-swap-highlight",
           sort = FALSE,
           onSort = sortable_js_capture_input("sort_vars"),
@@ -439,7 +438,7 @@ server <- function(input, output) {
             #put = htmlwidgets::JS("function (to) { return to.el.children.length < 1; }"),
             pull = TRUE
           ),
-          swap = TRUE,
+          swap = FALSE,
           swapClass = "sortable-swap-highlight",
           onSort = sortable_js_capture_input("sort_x"),
           onLoad = sortable_js_capture_input("sort_x")
@@ -475,7 +474,7 @@ server <- function(input, output) {
           swap = TRUE,
           swapClass = "sortable-swap-highlight",
           onSort = sortable_js_capture_input("sort_y"),
-          onLoad = sortable_js_capture_input("sort_y"),
+          onLoad = sortable_js_capture_input("sort_y")
         ))
     )
   })
@@ -502,7 +501,7 @@ server <- function(input, output) {
       )
       myvalue("upload")
       upload_name(fileInfo$name)
-      print(cat("Dataset is uploaded: ", fileInfo$name))
+      message(cat("Dataset is uploaded: ", fileInfo$name))
       return(x)
     })
   
