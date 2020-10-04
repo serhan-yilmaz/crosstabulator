@@ -107,7 +107,7 @@ server <- function(input, output) {
   
   preprocessed_dataset <- reactive({
     dataset <- reactive_dataset()
-    cat("Dataset changed to: ", myvalue(), "\n", file = stderr())
+    cat("Dataset changing to: ", myvalue(), "\n", file = stderr())
     ready(TRUE)
     
     P <- list()
@@ -120,6 +120,7 @@ server <- function(input, output) {
     cnames <- colnames(P$dataset)
     valids <- rep(TRUE, ncol(P$dataset))
     for (i in 1:ncol(P$dataset)) {
+      cat("Variable: ", c, "\n", file = stderr())
       c <- c_names[i]
       q <- P$dataset[[c]]
       if((P$u_values[i] < 10) && !is.factor(q)){
@@ -138,10 +139,15 @@ server <- function(input, output) {
       }
       
     }
+    
+    
     #print(valids)
     
     P$dataset <- P$datase[valids]
     P$u_values <- lapply(P$dataset, function(x) length(unique(x)))
+    
+    cat("Dataset changed to: ", myvalue(), "\n", file = stderr())
+    
     #ready(TRUE)
     return (P)
   })
@@ -173,14 +179,18 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
+    message(cat("Prepare table: Status 0"))
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "")
     )
+    message(cat("Prepare table is starting..."))
     #print("Prepare table is updated.")
     #x <- list(a='b');
     
     x <- table1(P$dataset, y(), x());
+    message(cat("Prepare table: Status A"))
+    
     x$yval <- y()
     
     a <- rep(NA, sum(x$n.rgroup))
@@ -193,6 +203,8 @@ server <- function(input, output) {
       }
     }
     
+    message(cat("Prepare table: Status B"))
+    
     row_names <- rownames(x$table);
     x$df <- as.data.frame(x$table);
     x$df <- x$df %>% add_column(row_names, .after = 0)
@@ -201,6 +213,8 @@ server <- function(input, output) {
     names(x$df)[1] <- "Variable"
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&plusmn;", "±")))
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&lt;", "<")))
+    
+    message(cat("Prepare table has ended."))
     
     return (x)
   })
@@ -212,14 +226,18 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
+    message(cat("Tableout: Status 0."))
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "The variable in y must be categorical (shown red).")
     )
+    message(cat("Tableout: Status 1."))
     validate(
       need(preparetable(), "Table is not ready yet.")
     )
+    message(cat("Tableout: Status 2."))
     x <- preparetable()
+    message(cat("Tableout: Status 3."))
     return(x$html)
   }
   
