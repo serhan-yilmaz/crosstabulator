@@ -1,9 +1,20 @@
+on_ready <- paste(
+  "$(function() {",
+  "$(document).on('shiny:connected', function(e) {",
+  "Shiny.setInputValue('initialized', 1);",
+  "});",
+  "",
+  "});",
+  sep = "\n"
+)
+
 ui <- fluidPage(
   title = "CrossTabulator", 
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
     includeHTML(("www/google-analytics.html")),
+    tags$script(on_ready),
   ),
   #tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
   fluidRow(

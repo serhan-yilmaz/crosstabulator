@@ -1,47 +1,28 @@
 library(sortable)
-library(magrittr)
-library(Gmisc)
-library(Hmisc)
 library(htmlwidgets)
-library(htmlTable)
-#library(survival)
-#library(kableExtra)
-library(boot)
-library(flextable)
-library(officer)
-library(haven)
-library(tools)
-library(tidyverse)
-source("table1.R")
 
-melanoma2 <- melanoma
+# melanoma2 <- melanoma
+# 
+# melanoma2$status <-
+#   factor(melanoma2$status,
+#          levels=c(2,1,3),
+#          labels=c("Alive", # Reference
+#                   "Melanoma death",
+#                   "Non-melanoma death"))
+# 
+# melanoma2$sex <-
+#   factor(melanoma2$sex, levels=c(1,0),
+#          labels=c("Male",
+#                   "Female"))
+# 
+# melanoma2$ulcer <-
+#   factor(melanoma2$ulcer, levels=c(0,1),
+#          labels=c("Absent",
+#                   "Present"))
+# 
+# melanoma2$ulcer[3] <- NA
 
-# Factor the basic variables that
-# we're interested in
-melanoma2$status <- 
-  factor(melanoma2$status, 
-         levels=c(2,1,3),
-         labels=c("Alive", # Reference
-                  "Melanoma death", 
-                  "Non-melanoma death"))
-
-melanoma2$sex <- 
-  factor(melanoma2$sex, levels=c(1,0),
-         labels=c("Male", 
-                  "Female"))
-
-melanoma2$ulcer <- 
-  factor(melanoma2$ulcer, levels=c(0,1),
-         labels=c("Absent", 
-                  "Present"))
-
-melanoma2$ulcer[3] <- NA
-
-#label(melanoma2$sex)       <- "Sex"
-#label(melanoma2$age)       <- "Age"
-#label(melanoma2$ulcer)     <- "Ulceration"
-#label(melanoma2$thickness) <- "Thickness"
-
+melanoma2 <- read.csv("data/melanoma2.csv", header = T)
 dm431 <- read.csv("data/dm431.csv", header = T)
 hbp_study <- read.csv("data/hbp_study.csv", header = T)
 hbp330 <- read.csv("data/hbp330.csv", header = T)
@@ -92,9 +73,10 @@ server <- function(input, output) {
   myvalue <- reactiveVal("melanoma")
   ready <- reactiveVal(FALSE)
   
-  upload_name <- reactiveVal("")
+  initialized <- reactiveVal(FALSE)
   
   reactive_dataset <- reactive({
+    req(initialized())
     switch (myvalue(),
             "melanoma" = melanoma2,
             "mtcars" = mtcars,
@@ -106,6 +88,7 @@ server <- function(input, output) {
   })
   
   preprocessed_dataset <- reactive({
+    req(initialized())
     dataset <- reactive_dataset()
     #cat("Dataset changing to: ", myvalue(), "\n", file = stderr())
     ready(FALSE)
@@ -172,6 +155,7 @@ server <- function(input, output) {
     if((length(fo_sort_y()) == length(y_vars)) 
        && all(fo_sort_y() == y_vars)){
       ready(TRUE)
+      initialized('T')
     }
     return (y_vars)
   })
@@ -183,17 +167,17 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
-    message("Prepare table: Status 0")
+    #message("Prepare table: Status 0")
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "")
     )
-    message("Prepare table is starting...")
+    message("[Running] Prepare table...")
     #print("Prepare table is updated.")
     #x <- list(a='b');
     
     x <- table1(P$dataset, y(), x());
-    message("Prepare table: Status A")
+    #message("Prepare table: Status A")
     
     x$yval <- y()
     
@@ -207,7 +191,7 @@ server <- function(input, output) {
       }
     }
     
-    message("Prepare table: Status B")
+    #message("Prepare table: Status B")
     
     row_names <- rownames(x$table);
     x$df <- as.data.frame(x$table);
@@ -218,7 +202,7 @@ server <- function(input, output) {
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&plusmn;", "±")))
     x$df <- x$df %>% mutate_all(funs(str_replace_all(., "&lt;", "<")))
     
-    message("Prepare table has ended.")
+    message("[Done] Prepare table.")
     
     return (x)
   })
@@ -230,18 +214,18 @@ server <- function(input, output) {
       need(ready(), "")
     )
     P <- preprocessed_dataset()
-    message("Tableout: Status 0.")
+    #message("Tableout: Status 0.")
     validate(need(P, ""))
     validate(
       need((length(y()) != 0) && (P$u_values[y()]<10), "The variable in y must be categorical (shown red).")
     )
-    message("Tableout: Status 1.")
+    #message("Tableout: Status 1.")
     validate(
       need(preparetable(), "Table is not ready yet.")
     )
-    message("Tableout: Status 2.")
+    #message("Tableout: Status 2.")
     x <- preparetable()
-    message("Tableout has ended.")
+    #message("Tableout has ended.")
     return(x$html)
   }
   
@@ -406,6 +390,9 @@ server <- function(input, output) {
   })
   
   output$sort1_ui <- renderUI({
+    validate(
+      need(initialized(), "Loading...")
+    )
     req(preprocessed_dataset())
     tags$div(
       class = "panel panel-default",
@@ -437,6 +424,9 @@ server <- function(input, output) {
   })
   
   output$sort2_ui <- renderUI({
+    validate(
+      need(initialized(), "Loading...")
+    )
     req(preprocessed_dataset())
     tags$div(
       class = "panel panel-default",
@@ -514,6 +504,22 @@ server <- function(input, output) {
     upload_dataset()
     })
   
+  observeEvent(input$initialized, {
+    message("[Running] Loading packages...")
+    library(Gmisc)
+    library(Hmisc)
+    library(htmlTable)
+    #library(boot)
+    library(flextable)
+    library(officer)
+    library(haven)
+    library(tools)
+    library(tidyverse)
+    source("table1.R")
+    message("[Done] Loading packages.")
+    initialized(TRUE);
+  })
+  
   upload_dataset <- reactive({
       inFile <- input$file1
       if (is.null(inFile))
@@ -539,6 +545,9 @@ server <- function(input, output) {
     
     return(x)
   })
+  
+  outputOptions(output, "sort1_ui", suspendWhenHidden=FALSE)
+  
   
 }
 
