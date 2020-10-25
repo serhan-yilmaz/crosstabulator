@@ -351,12 +351,29 @@ server <- function(input, output) {
   
   output$download_ui <- renderUI({
     req(prepareFlexTable())
-    splitLayout(
-      downloadButton("downloadData", label = "Export to Word"),
-      downloadButton("downloadData_csv", label = "Export to CSV"),
-      #downloadButton("downloadData_html", label = "Export to HTML"),
-      downloadButton("downloadData_pptx", label = "Export to Powerpoint")
+    tags$div(
+      class = "panel panel-default",
+      #style = "padding-top:3px;",
+      style = "margin:0px; margin-bottom: 8px; margin-top:8px;",
+      #tags$div(class = "panel-heading", "Export the Output"),
+      tags$div(
+        class = "panel-body",
+        style = "padding-bottom:10px; padding-top:10px; margin:0px;",
+        id = "exportTo",
+        tags$strong("Export Output:", style="margin-right:4px"),
+        downloadButton("downloadData", label = "Word"),
+        downloadButton("downloadData_pptx", label = "Powerpoint"),
+        downloadButton("downloadData_csv", label = "CSV"),
+        downloadButton("downloadData_html", label = "HTML")
+      )
     )
+    
+    #splitLayout(
+      #downloadButton("downloadData", label = "Export to Word"),
+      #downloadButton("downloadData_csv", label = "Export to CSV"),
+      #downloadButton("downloadData_html", label = "Export to HTML"),
+      #downloadButton("downloadData_pptx", label = "Export to Powerpoint")
+    #)
   })
   
   output$current_dataset_ui <- renderUI({
