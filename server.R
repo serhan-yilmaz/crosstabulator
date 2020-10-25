@@ -321,11 +321,31 @@ server <- function(input, output) {
       library(flextable)
       library(officer)
       
-      x <- preparetable()
-      headings = x$headings
       myft <- prepareFlexTable()
       myft <- fix_border_issues(myft, part = "all")
       save_as_pptx(myft, path = con)
+    }
+  )
+  
+  output$downloadData_csv <- downloadHandler(
+    filename = function() {
+      paste('table-', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      message(con)
+      x <- preparetable()
+      write.csv(x$df, file = con, row.names = FALSE)
+    }
+  )
+  
+  output$downloadData_html <- downloadHandler(
+    filename = function() {
+      paste('table-', Sys.Date(), '.html', sep='')
+    },
+    content = function(con) {
+      message(con)
+      x <- preparetable()
+      cat(x$html, file = con)
     }
   )
   
@@ -333,7 +353,8 @@ server <- function(input, output) {
     req(prepareFlexTable())
     splitLayout(
       downloadButton("downloadData", label = "Export to Word"),
-      fillRow(),
+      downloadButton("downloadData_csv", label = "Export to CSV"),
+      #downloadButton("downloadData_html", label = "Export to HTML"),
       downloadButton("downloadData_pptx", label = "Export to Powerpoint")
     )
   })
