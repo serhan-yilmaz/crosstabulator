@@ -108,7 +108,7 @@ ui <- fluidPage(
             "<serhan.yilmaz@case.edu>",
             tags$br(),
             tags$a("Ahmet Mert Hacialiefendioglu", href="https://www.linkedin.com/in/hacialiefendioglu/"),
-            "<ahmetmert53@gmail.com>",
+            "<ahmetmert@hotmail.it>",
           )
         ),
         tags$p(
