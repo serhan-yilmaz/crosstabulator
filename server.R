@@ -338,6 +338,21 @@ server <- function(input, output) {
     }
   )
   
+  output$downloadData_latex <- downloadHandler(
+    filename = function() {
+      paste('table-', Sys.Date(), '.tex', sep='')
+    },
+    content = function(con) {
+      message(con)
+      x <- preparetable()
+      x$df <- x$df %>% mutate_all(funs(str_replace_all(., "_", "\\\\_")))
+      x$df <- x$df %>% mutate_all(funs(str_replace_all(., "%", "\\\\%")))
+      x$df <- x$df %>% mutate_all(funs(str_replace_all(., "<", "$<$")))
+      x$df <- x$df %>% mutate_all(funs(str_replace_all(., "±", "$\\\\pm$")))
+      print(xtable(x$df), sanitize.text.function=identity, include.rownames=FALSE, file=con)
+    }
+  )
+  
   output$downloadData_html <- downloadHandler(
     filename = function() {
       paste('table-', Sys.Date(), '.html', sep='')
@@ -360,11 +375,15 @@ server <- function(input, output) {
         class = "panel-body",
         style = "padding-bottom:10px; padding-top:10px; margin:0px;",
         id = "exportTo",
-        tags$strong("Export Output:", style="margin-right:4px"),
-        downloadButton("downloadData", label = "Word"),
-        downloadButton("downloadData_pptx", label = "Powerpoint"),
-        downloadButton("downloadData_csv", label = "CSV"),
-        downloadButton("downloadData_html", label = "HTML")
+        tags$strong("Export Output:", style="margin-right:4px;"),
+         #tags$div(
+         # style = "display: inline; float:right;", 
+          downloadButton("downloadData", label = "Word"),
+          downloadButton("downloadData_pptx", label = "Powerpoint"),
+          downloadButton("downloadData_csv", label = "CSV"),
+          downloadButton("downloadData_html", label = "HTML"),
+          downloadButton("downloadData_latex", label = "Latex")
+       # )
       )
     )
     
@@ -544,6 +563,7 @@ server <- function(input, output) {
   
   observeEvent(input$initialized, {
     message("[Running] Loading packages...")
+    library(xtable)
     library(Gmisc)
     library(Hmisc)
     library(htmlTable)
