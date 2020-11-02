@@ -65,7 +65,7 @@ names_to_tags <- function(df, names){
     return (r)
   }
 
-server <- function(input, output) {
+server <- function(input, output, session) {
   
   #output$variables <- renderPrint(input[["sort_vars"]])
   #output$analyse_y <- renderPrint(input[["sort_y"]])

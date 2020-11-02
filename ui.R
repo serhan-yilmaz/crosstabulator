@@ -13,6 +13,7 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
+    tags$meta(name="keywords", content="cross tabulation, summary statistics, data analysis, demographics table"),
     includeHTML(("www/google-analytics.html")),
     tags$script(on_ready),
   ),
@@ -131,6 +132,32 @@ ui <- fluidPage(
           tabPanel(
             "Data View",
             div(style = 'overflow: auto; max-height:380px;', tableOutput("contents"))
+          ),
+          tabPanel(
+            "FAQ",
+            tags$div(
+              class = "panel-body",
+              style = "padding-bottom:10px; padding-top:10px; margin:0px;", #  height: 78px;
+              #tags$p(),
+              tags$h3("Frequently Asked Questions (FAQ)", style="font-weight:normal;"),
+              tags$h4("What is the purpose behind CrossTabulator?", style="font-weight:bold; margin-bottom:5px;"),
+              tags$p(style="text-align:justify;", "In quantitative research (particularly in social science), it is important to provide an overview of the study population (e.g., demographics of human participants) through summary statistics of the study data. With crosstabulator, we aim to provide an easy and accurate way to create such descriptive tables for researchers who do not want to deal with programming or lack the necessary technical knowledge."), 
+              #tags$br(),
+              tags$h4("How can I use CrossTabulator on my data?", style="font-weight:bold; margin-bottom:5px;"),
+              tags$p(style="text-align:justify;", "To use CrossTabulator with your data, simply click on the upload button and, in the opened window, select the data file that you wish to analyze in your computer. Note that, currently two types of file formats (.csv and .sav) are accepted as input."), 
+              #tags$br(),
+              tags$h4("Can I export the generated tables?", style="font-weight:bold; margin-bottom:5px;"),
+              tags$p(style="text-align:justify;", "Yes, the generated tables can be downloaded in several modifiable formats including Word (.docx), Powerpoint (.pptx), Latex, HTML and CSV."), 
+              #tags$br(),
+              tags$h4("Is it safe to use CrossTabulator for sensitive data?", style="font-weight:bold; margin-bottom:5px;"),
+              tags$p(style="text-align:justify;", "Beyond the session duration, CrossTabulator does not store any of the uploaded data files nor the generated tables. But, for highly sensitive or classified data, we recommend running CrossTabulator locally on your own computer to avoid man in the middle attacks."), 
+              #tags$br(),
+              tags$h4("How to run CrossTabulator locally?", style="font-weight:bold; margin-bottom:5px;"),
+              tags$p(style="text-align:justify;", 
+                     "To run CrossTabulator locally, download the source code and follow the instructions in ", 
+                     tags$a(href="https://github.com/serhan-yilmaz/crosstabulator", "Github page.")), 
+              # tags$br(),
+            )
           )
       ),
     )
