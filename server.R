@@ -398,7 +398,7 @@ server <- function(input, output, session) {
   output$current_dataset_ui <- renderUI({
     dname = myvalue();
     if(dname == "upload"){
-      dname = upload_name()
+     # dname = upload_name()
     }
     tags$div(
       tags$b("Current Dataset:", style = "margin-bottom:0px;"),
@@ -592,7 +592,7 @@ server <- function(input, output, session) {
              )
       )
       myvalue("upload")
-      upload_name(fileInfo$name)
+     # upload_name(fileInfo$name)
       message(cat("Dataset is uploaded: ", fileInfo$name))
       return(x)
     })
