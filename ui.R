@@ -13,7 +13,7 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
-    tags$meta(name="keywords", content="cross tabulation, summary statistics, data analysis, demographics table"),
+    tags$meta(name="keywords", content="cross tabulation, summary statistics, data analysis, demographics table, tableone, online summary table generator, "),
     includeHTML(("www/google-analytics.html")),
     tags$script(on_ready),
   ),
