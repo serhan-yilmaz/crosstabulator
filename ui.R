@@ -13,7 +13,7 @@ ui <- fluidPage(
   tags$head(
     tags$link(rel="shortcut icon", href="favicon.png"),
     tags$meta(name="description", content="A web application to create demographics tables for use in scientific journals"),
-    tags$meta(name="keywords", content="cross tabulation, summary statistics, data analysis, demographics table, tableone, online summary table generator, "),
+    tags$meta(name="keywords", content="cross tabulation, summary statistics, data analysis, demographics table"),
     includeHTML(("www/google-analytics.html")),
     tags$script(on_ready),
   ),
@@ -129,6 +129,12 @@ ui <- fluidPage(
               )
             )
           ),
+          tabPanel(
+            "Options",
+            selectInput("horz_perc", "Percentage Normalization:", 
+                        choices = list("Within-Variable (Horizontal)" = 1, "Within-Group (Vertical)" = 2), selected = 1),
+            checkboxInput("include_pvalues", "Include p-value column", TRUE),
+          ), 
           tabPanel(
             "Data View",
             div(style = 'overflow: auto; max-height:380px;', tableOutput("contents"))

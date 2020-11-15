@@ -70,6 +70,7 @@ server <- function(input, output, session) {
   #output$variables <- renderPrint(input[["sort_vars"]])
   #output$analyse_y <- renderPrint(input[["sort_y"]])
   
+  upload_name <- reactiveVal("")
   myvalue <- reactiveVal("melanoma")
   ready <- reactiveVal(FALSE)
   
@@ -176,7 +177,7 @@ server <- function(input, output, session) {
     #print("Prepare table is updated.")
     #x <- list(a='b');
     
-    x <- table1(P$dataset, y(), x());
+    x <- table1(P$dataset, y(), x(), hrzl_prop = (input$horz_perc==1), statistics = input$include_pvalues);
     #message("Prepare table: Status A")
     
     x$yval <- y()
@@ -291,8 +292,10 @@ server <- function(input, output, session) {
     #myft <- hline_top(myft, j = 1:length(headings), part = "header", border = fp_border(color = "red") )
     myft <- merge_h(myft, i = 1, part = "header")
     myft <- merge_v(myft, j = "Variable")
-    myft <- vline(myft, j = c(2,length(headings)-1), i = 1:nrow(row_names), border = fp_border(color="black"), part = "body");
-    myft <- vline(myft, j = c(2,length(headings)-1), i = 2, border = fp_border(color="black"), part = "header");
+    if(input$include_pvalues){
+      myft <- vline(myft, j = c(2,length(headings)-1), i = 1:nrow(row_names), border = fp_border(color="black"), part = "body");
+      myft <- vline(myft, j = c(2,length(headings)-1), i = 2, border = fp_border(color="black"), part = "header");
+    }
     myft <- width(myft, width = 1)
     myft <- align(myft, align = "center", part = "body")
     myft <- align(myft, align = "center", part = "header")
@@ -398,7 +401,7 @@ server <- function(input, output, session) {
   output$current_dataset_ui <- renderUI({
     dname = myvalue();
     if(dname == "upload"){
-     # dname = upload_name()
+      dname = upload_name()
     }
     tags$div(
       tags$b("Current Dataset:", style = "margin-bottom:0px;"),
@@ -592,7 +595,7 @@ server <- function(input, output, session) {
              )
       )
       myvalue("upload")
-     # upload_name(fileInfo$name)
+      upload_name(fileInfo$name)
       message(cat("Dataset is uploaded: ", fileInfo$name))
       return(x)
     })

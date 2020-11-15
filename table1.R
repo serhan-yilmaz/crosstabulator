@@ -1,6 +1,6 @@
 
 table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col=T, statistics=T, NEJMstyle=T, digits=2, colN=T, 
-  caption="", pos.caption="top", tfoot="",  continuous_fn=describeMean, css.class="gmisc_table") {
+  caption="", pos.caption="top", tfoot="",  continuous_fn=describeMean, css.class="gmisc_table", hrzl_prop=T) {
   
   
   if (is.vector(selectedFields)) {
@@ -17,7 +17,7 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
   table_data <- list()
   for (i in 1:nrow(selectedFields)) {
     table_data[[ selectedFields[i,1] ]] = 
-      getDescriptionStatsBy(curdf[, selectedFields[i,1]], curdf[, colfactor], show_all_values=TRUE, hrzl_prop=T, html=TRUE, 
+      getDescriptionStatsBy(curdf[, selectedFields[i,1]], curdf[, colfactor], show_all_values=TRUE, hrzl_prop = hrzl_prop, html=TRUE, 
         add_total_col=add_total_col, statistics=statistics, NEJMstyle = NEJMstyle, digits=as.integer(selectedFields[i,2]))
   }
   
