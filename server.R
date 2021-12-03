@@ -168,7 +168,6 @@ server <- function(input, output, session) {
       need(ready(), "")
     )
     library(moments)
-    library(outliers)
     P <- preprocessed_dataset()
     xx <- x()
     #message(length(xx))
