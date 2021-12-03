@@ -1,6 +1,6 @@
 
 table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col=T, statistics=T, NEJMstyle=T, digits=2, colN=T, 
-  caption="", pos.caption="top", tfoot="",  continuous_fn=describeMean, css.class="gmisc_table", hrzl_prop=T) {
+  caption="", pos.caption="top", tfoot="",  continuous_fns="describeMean", css.class="gmisc_table", hrzl_prop=T) {
   
   
   if (is.vector(selectedFields)) {
@@ -12,12 +12,23 @@ table1 = function(curdf, colfactor, selectedFields, colOptions="", add_total_col
     colOptions = cbind(x, rep("c", length(x)), rep(label(curdf[,colfactor]), length(x)))
   }
   
+  #continuous_fns = c(rep("describeMedian", 1), rep("describeMean", nrow(selectedFields)-1))
+  #continuous_fns = rep("describeMedian", 1)
+  if(length(continuous_fns)){
+    continuous_fns = rep(continuous_fns, nrow(selectedFields))
+  }
+  
   #message("Table1: Status 0")
   # Get the basic stats and store in a list
   table_data <- list()
   for (i in 1:nrow(selectedFields)) {
+    cnt_fn = switch (continuous_fns[i],
+            "describeMedian" = describeMedian,
+            "describeMean" = describeMean,
+            stop("Invalid continuous function selected.")
+    )
     table_data[[ selectedFields[i,1] ]] = 
-      getDescriptionStatsBy(curdf[, selectedFields[i,1]], curdf[, colfactor], show_all_values=TRUE, hrzl_prop = hrzl_prop, html=TRUE, 
+      getDescriptionStatsBy(curdf[, selectedFields[i,1]], curdf[, colfactor], show_all_values=TRUE, hrzl_prop = hrzl_prop, html=TRUE, continuous_fn = cnt_fn, 
         add_total_col=add_total_col, statistics=statistics, NEJMstyle = NEJMstyle, digits=as.integer(selectedFields[i,2]))
   }
   

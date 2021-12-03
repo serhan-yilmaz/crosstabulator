@@ -1,3 +1,6 @@
+library(shinyBS)
+library(shinyhelper)
+
 on_ready <- paste(
   "$(function() {",
   "$(document).on('shiny:connected', function(e) {",
@@ -120,19 +123,44 @@ ui <- fluidPage(
         tabsetPanel(
           tabPanel(
             "Cross-Tabulation",
+            
             fluidRow(
               column(
                 width = 12,
+                #shinycssloaders::withSpinner(
+                #  tagList(
+                #  htmlOutput("tableout"),
+                #  uiOutput("download_ui")
+                #  )
+                #),
+                #shinycssloaders::withSpinner(
+                #uiOutput("test_ui")
+                #)
                 htmlOutput("tableout"),
                 uiOutput("download_ui")
                 #downloadButton("downloadData", label = "Download"),
               )
             )
+            
           ),
           tabPanel(
             "Options",
             selectInput("horz_perc", "Percentage Normalization:", 
                         choices = list("Within-Variable (Horizontal)" = 1, "Within-Group (Vertical)" = 2), selected = 1),
+            #tags$div(
+            #  id = "numerical_summary_tooltip",
+             # style = "display: inline-block;",
+              #tags$div(
+       #       selectInput("numerical_summary", "Numerical Variable Summary:", 
+         #               choices = list("Mean+Standard Deviation" = 1, "Median+IQR" = 2, "Automated Selection" = 3), selected = 1),
+            #  ),
+            #  tags$p("abcd"),
+           # ),
+           helper(selectInput("numerical_summary", "Numerical Variable Summary:", 
+                                            choices = list("Automated Selection" = 3, "Mean+Standard Deviation" = 1, "Median+IQR" = 2), selected = 3),
+                  type = "markdown", id = "numerical_summary_tooltip"),
+            bsTooltip(id = "numerical_summary_tooltip", title = "Automated selection chooses median+IQR for variables with substantial skewness (>1) or excess kurtosis (>2) and chooses mean+std for all others.", 
+                      placement = "left", trigger = "hover"),
             checkboxInput("include_pvalues", "Include p-value column", TRUE),
           ), 
           tabPanel(

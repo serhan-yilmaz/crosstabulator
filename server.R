@@ -1,6 +1,7 @@
 library(sortable)
 library(htmlwidgets)
 
+
 # melanoma2 <- melanoma
 # 
 # melanoma2$status <-
@@ -161,6 +162,37 @@ server <- function(input, output, session) {
     return (y_vars)
   })
   
+  auto_mean_median_selection <- reactive({
+    validate(
+      need(x(), ""),
+      need(ready(), "")
+    )
+    library(moments)
+    library(outliers)
+    P <- preprocessed_dataset()
+    xx <- x()
+    #message(length(xx))
+    #if(is.numeric(length(xx))){
+      cnt_fn = rep("describeMean", length(xx))
+      for (i in 1:length(xx)) {
+        v <- P$dataset[, xx[i]]
+        if(is.numeric(v)){
+          v <- v[!is.na(v)]
+          if(abs(skewness(v))>= 1){
+            cnt_fn[i] = "describeMedian"
+          }
+          if(kurtosis(v) >= 5){
+            cnt_fn[i] = "describeMedian"
+          }
+        }
+      }
+   # } else {
+   #   cnt_fn = "describeMean"
+   # }
+    cnt_fn
+    
+  })
+  
   preparetable <- reactive({
     validate(
       need(x(), ""),
@@ -177,7 +209,18 @@ server <- function(input, output, session) {
     #print("Prepare table is updated.")
     #x <- list(a='b');
     
-    x <- table1(P$dataset, y(), x(), hrzl_prop = (input$horz_perc==1), statistics = input$include_pvalues);
+
+    cnt_fn = switch(as.character(input$numerical_summary),
+                    "1"="describeMean",
+                    "2"="describeMedian",
+                    "3"= auto_mean_median_selection(),
+                    stop("Invalid numerical variable option selected.")
+    )
+    
+    xvars <- x()
+    
+    x <- table1(P$dataset, y(), x(), hrzl_prop = (input$horz_perc==1), 
+                statistics = input$include_pvalues, continuous_fns = cnt_fn);
     #message("Prepare table: Status A")
     
     x$yval <- y()
@@ -367,8 +410,17 @@ server <- function(input, output, session) {
     }
   )
   
+  output$test_ui <- renderUI({
+    tags$div(
+    htmlOutput("tableout"),
+    uiOutput("download_ui")
+    )
+  })
+  
   output$download_ui <- renderUI({
     req(prepareFlexTable())
+    #req(ready())
+    #req("tableout")
     tags$div(
       class = "panel panel-default",
       #style = "padding-top:3px;",
